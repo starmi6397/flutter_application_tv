@@ -1,50 +1,36 @@
-# 工作流名称
 name: Flutter Build APK
 
-# 触发条件：推送到main分支时执行
 on:
   push:
     branches: [ main ]
-  # 也可以手动触发
   workflow_dispatch:
 
-# 定义作业
 jobs:
   build:
-    # 指定运行环境（Ubuntu 是编译 Flutter 最常用的环境）
     runs-on: ubuntu-latest
 
     steps:
-      # 1. 拉取仓库代码
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. 安装 Flutter SDK
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          # 指定 Flutter 版本，也可以用 'stable' 表示稳定版
-          flutter-version: '3.19.0'
-          # 可选：启用缓存，加速后续构建
+          # 关键修改：使用包含 Dart 3.11.0 的 Flutter 版本（3.16.0 及以上）
+          flutter-version: '3.16.0' # 也可以用 'stable' 拉取最新稳定版（≥3.16.0）
           cache: true
 
-      # 3. 安装项目依赖
       - name: Get dependencies
         run: flutter pub get
 
-      # 4. 可选：运行代码检查（非必须，但建议添加）
       - name: Analyze code
         run: flutter analyze
 
-      # 5. 编译 APK（release 版本）
       - name: Build APK
         run: flutter build apk --release --split-per-abi
 
-      # 6. 上传编译后的 APK 文件（方便下载）
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          # 产物名称，下载时显示
           name: flutter-apk
-          # APK 文件的输出路径（Flutter 默认编译产物位置）
           path: build/app/outputs/flutter-apk/*.apk
